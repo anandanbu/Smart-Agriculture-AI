@@ -4,15 +4,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-class GrokChatbot:
+
+class GroqChatbot:
     def __init__(self, api_key=None):
-        """Initialize Grok API chatbot"""
-        self.api_key = api_key or os.getenv("GROK_API_KEY")
-        self.api_url = "https://api.x.ai/v1/chat/completions"
-        self.model = "grok-beta"
+        """Initialize Groq API chatbot"""
+        self.api_key = api_key or os.getenv("GROQ_API_KEY")
+        self.api_url = "https://api.groq.com/openai/v1/chat/completions"
+        self.model = "llama-3.1-70b-versatile"
         
     def get_crop_insights(self, crop, N, P, K, temp, humidity, ph, rainfall):
-        """Get detailed insights about crop and soil conditions from Grok"""
+        """Get detailed insights about crop and soil conditions from Groq"""
         prompt = f"""
         Based on the following soil and weather parameters for growing {crop}:
         - Nitrogen (N): {N} mg/kg
@@ -33,10 +34,10 @@ class GrokChatbot:
         Keep response concise and practical for a farmer.
         """
         
-        return self._call_grok(prompt)
+        return self._call_groq(prompt)
     
     def get_farming_advice(self, query):
-        """Get general farming advice from Grok"""
+        """Get general farming advice from Groq"""
         prompt = f"""
         As an expert agricultural advisor, answer the following farmer's question:
         
@@ -46,7 +47,7 @@ class GrokChatbot:
         Keep response concise and easy to understand.
         """
         
-        return self._call_grok(prompt)
+        return self._call_groq(prompt)
     
     def get_disease_prevention_tips(self, crop):
         """Get disease prevention tips for a specific crop"""
@@ -61,11 +62,14 @@ class GrokChatbot:
         Use simple language suitable for farmers.
         """
         
-        return self._call_grok(prompt)
+        return self._call_groq(prompt)
     
-    def _call_grok(self, prompt):
-        """Internal method to call Grok API"""
+    def _call_groq(self, prompt):
+        """Internal method to call Groq API"""
         try:
+            if not self.api_key:
+                return "⚠️ Error: GROQ_API_KEY not found in environment variables. Please set it in your .env file."
+            
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json"
@@ -82,13 +86,19 @@ class GrokChatbot:
             }
             
             response = requests.post(self.api_url, json=payload, headers=headers, timeout=10)
-            response.raise_for_status()
+            
+            if response.status_code == 401:
+                return "⚠️ Error: Invalid API Key. Please check your GROQ_API_KEY in .env file."
+            elif response.status_code != 200:
+                return f"⚠️ API Error {response.status_code}: {response.text}"
             
             result = response.json()
             return result["choices"][0]["message"]["content"]
         
+        except requests.exceptions.Timeout:
+            return "⚠️ Request timeout. Please try again."
         except requests.exceptions.RequestException as e:
-            return f"⚠️ Error connecting to Grok API: {str(e)}"
+            return f"⚠️ Error connecting to Groq API: {str(e)}"
         except KeyError:
             return "⚠️ Unexpected API response format"
         except Exception as e:
