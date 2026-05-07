@@ -10,7 +10,7 @@ class GroqChatbot:
         """Initialize Groq API chatbot"""
         self.api_key = api_key or os.getenv("GROQ_API_KEY")
         self.api_url = "https://api.groq.com/openai/v1/chat/completions"
-        self.model = "llama-3.1-70b-versatile"
+        self.model = "llama-3.3-70b-versatile"
         
     def get_crop_insights(self, crop, N, P, K, temp, humidity, ph, rainfall):
         """Get detailed insights about crop and soil conditions from Groq"""
