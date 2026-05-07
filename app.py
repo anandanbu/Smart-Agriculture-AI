@@ -2,14 +2,14 @@ import streamlit as st
 import joblib
 import pandas as pd
 from recommendation import get_crop_recommendation
-from grok_chatbot import GrokChatbot
+from grok_chatbot import GroqChatbot
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initialize Grok chatbot
-grok = GrokChatbot()
+# Initialize Groq chatbot
+groq = GroqChatbot()
 
 # Load model
 data = joblib.load("model.pkl")
@@ -66,13 +66,13 @@ with tab1:
 
 # ============= TAB 2: AI INSIGHTS =============
 with tab2:
-    st.subheader("AI-Powered Insights with Grok")
+    st.subheader("AI-Powered Insights with Groq (Meta Llama)")
     
     if 'last_prediction' in st.session_state:
         if st.button("📊 Get Detailed Insights for Last Prediction", use_container_width=True):
-            with st.spinner("🔄 Grok is analyzing your farm conditions..."):
+            with st.spinner("🔄 Groq is analyzing your farm conditions..."):
                 params = st.session_state.last_params
-                insights = grok.get_crop_insights(
+                insights = groq.get_crop_insights(
                     st.session_state.last_prediction,
                     params['N'], params['P'], params['K'],
                     params['temp'], params['humidity'],
@@ -86,7 +86,7 @@ with tab2:
 with tab3:
     st.subheader("🤖 AI Farming Assistant")
     
-    st.write("Ask any farming-related questions and get expert advice from Grok AI")
+    st.write("Ask any farming-related questions and get expert advice from Groq AI")
     
     question = st.text_area(
         "Your farming question:",
@@ -97,7 +97,7 @@ with tab3:
     if st.button("💬 Get Expert Advice", use_container_width=True):
         if question.strip():
             with st.spinner("🤔 Thinking..."):
-                response = grok.get_farming_advice(question)
+                response = groq.get_farming_advice(question)
                 st.markdown(response)
         else:
             st.warning("Please enter a question")
@@ -119,7 +119,7 @@ with tab3:
         with cols[idx % 2]:
             if st.button(q, key=f"quick_{idx}", use_container_width=True):
                 with st.spinner("⏳ Getting response..."):
-                    response = grok.get_farming_advice(q)
+                    response = groq.get_farming_advice(q)
                     st.markdown(response)
 
 # ============= TAB 4: DISEASE PREVENTION =============
@@ -131,14 +131,14 @@ with tab4:
     
     if st.button(f"📚 Get Prevention Tips for {selected_crop.title()}", use_container_width=True):
         with st.spinner(f"🔍 Fetching disease prevention tips for {selected_crop}..."):
-            tips = grok.get_disease_prevention_tips(selected_crop)
+            tips = groq.get_disease_prevention_tips(selected_crop)
             st.markdown(tips)
 
 # ============= FOOTER =============
 st.divider()
 col1, col2, col3 = st.columns(3)
 with col1:
-    st.caption("🤖 Powered by Grok AI")
+    st.caption("🤖 Powered by Groq AI (Meta Llama)")
 with col2:
     st.caption("📊 ML Model: Random Forest")
 with col3:
